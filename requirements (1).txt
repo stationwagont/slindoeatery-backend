@@ -1,0 +1,18 @@
+# Slindo's Eatery — Python dependencies
+# Install with: pip install -r requirements.txt
+# Production server: gunicorn app:app
+
+# Web framework
+flask>=3.0.0
+
+# Cross-origin request support (lets the HTML front-end call the API)
+flask-cors>=4.0.0
+
+# ORM — database models and query interface
+SQLAlchemy>=2.0.0
+
+# Postgres driver (binary build — no system libs needed on Render)
+psycopg2-binary>=2.9.9
+
+# Production WSGI server (Render/Railway start command: gunicorn app:app)
+gunicorn>=21.2.0
