@@ -109,6 +109,16 @@ def error(message, status=400):
     return jsonify({"success": False, "error": message}), status
 
 
+# ── Business hours ─────────────────────────────────────────────────────────────
+OPEN_HOUR  = 9   # 09:00
+CLOSE_HOUR = 20  # 20:00
+
+def is_open():
+    """Return True if the current server time is within business hours."""
+    now = datetime.now()   # local server time
+    return OPEN_HOUR <= now.hour < CLOSE_HOUR
+
+
 # ── Routes ────────────────────────────────────────────────────────────────────
 @app.route("/", methods=["GET"])
 def health():
@@ -117,6 +127,21 @@ def health():
         "status": "online",
         "restaurant": "Slindo's Eatery",
         "message": "It's time for iKota 🍞"
+    })
+
+
+@app.route("/status", methods=["GET"])
+def store_status():
+    """Returns whether the store is currently open or closed."""
+    now  = datetime.now()
+    open_ = is_open()
+    return jsonify({
+        "open":           open_,
+        "status":         "open" if open_ else "closed",
+        "server_time":    now.strftime("%H:%M"),
+        "business_hours": f"{OPEN_HOUR:02d}:00 – {CLOSE_HOUR:02d}:00",
+        "message":        "We're open, come order! 🍞" if open_
+                          else "Ordering is closed. Please come back during business hours."
     })
 
 
@@ -147,6 +172,15 @@ def place_order():
 
     Returns the saved order with a generated order_id and timestamp.
     """
+    # ── Business hours gate ──
+    if not is_open():
+        return jsonify({
+            "success": False,
+            "message": "Ordering is closed. Please come back during business hours.",
+            "business_hours": f"{OPEN_HOUR:02d}:00 – {CLOSE_HOUR:02d}:00",
+            "server_time": datetime.now().strftime("%H:%M")
+        }), 503
+
     data = request.get_json(silent=True)
 
     if not data:
