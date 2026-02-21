@@ -16,3 +16,6 @@ psycopg2-binary>=2.9.9
 
 # Production WSGI server (Render/Railway start command: gunicorn app:app)
 gunicorn>=21.2.0
+flask
+flask-cors
+gunicorn
